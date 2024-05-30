@@ -1,25 +1,54 @@
-const {
-    postPredictHandler,
-    getPredictHandler,
-  } = require("../server/handler");
+const { 
+  createUser, //register
+  loginUser, //login
+  createProfile, // kuesioner profile
+  updateActivity, //edit activity list
+  getActivity, // get activity
+  updateDaily, //edit daily
+  getDaily, //get daily
+  getPrediction //prediksi penyakit
+} = require('./handler');
   
   const routes = [
     {
-      path: "/predict",
+      path: "/register",
       method: "POST",
-      handler: postPredictHandler,
-      options: {
-        payload: {
-          allow: "multipart/form-data",
-          maxBytes: 1000000,
-          multipart: true,
-        },
-      },
+      handler: createUser,
     },
     {
-      path: "/predict/histories",
+      path: "/login",
+      method: "POST",
+      handler: loginUser,
+    },
+    {
+      path: "/profile",
+      method: "POST",
+      handler: createProfile,
+    },
+    {
+      path: "/updateActivity",
+      method: "PUT",
+      handler: updateActivity,
+    },
+    {
+      path: "/getActivity",
       method: "GET",
-      handler: getPredictHandler,
+      handler: getActivity,
+    },
+    {
+      path: "/updateDaily",
+      method: "PUT",
+      handler: updateDaily,
+    },
+    {
+      path: "/getDaily",
+      method: "GET",
+      handler: getDaily,
+    },
+    {
+      path: "/predict",
+      method: "GET",
+      handler: getPrediction,
     },
   ];
   

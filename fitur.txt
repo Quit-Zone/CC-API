@@ -1,0 +1,46 @@
+Register:
+-gmail
+-password
+-username
+
+Login:
+-gmail
+-password
+
+Kuesioner:
+-user id
+-umur
+-gender
+-smoking habit
+-physical activity
+-alcohol
+
+Dashboard:
+-activity list
+-wallet
+-artikel
+-daily achivement
+
+activity list:
+-nama activity
+-jumlah dikerjakan
+-status
+
+Daily:
+-status
+-tanggal waktu
+
+
+artikel: (langsung masukan dari admin)
+-id 
+-ringkasan artikel penyakit
+-link
+
+wallet: (tambahan)
+-nominal
+
+Prediksi penyakit:
+-id penyakit
+-nama penyakit
+-suggestion
+-deskripsi

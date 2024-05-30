@@ -1,44 +1,38 @@
 // const predictClassification = require("../services/inferenceService");
 // const crypto = require("crypto");
-// const storeData = require("../services/storeData");
+const storeData = require("../services/storeData");
 // const getData = require("../services/getData");
 
-async function postPredictHandler(request, h) {
-    const { image } = request.payload;
-    const { model } = request.server.app;
+async function createUser(request, h) {
 
-    const { label, suggestion } = await predictClassification(model, image);
+}
+async function loginUser(request, h) {
 
-    const id = crypto.randomUUID();
-    const createdAt = new Date().toISOString();
+}
+async function createProfile(request, h) {
 
-    const data = {
-        id: id,
-        result: label,
-        suggestion: suggestion,
-        createdAt: createdAt,
-    };
+}
+async function updateActivity(request, h) {
 
-    await storeData(id, data);
+}
+async function getActivity(request, h) {
 
-    const response = h.response({
-        status: "success",
-        message: "Model is predicted successfully",
-        data,
-    });
-    response.code(201);
-    return response;
+}
+async function updateDaily(request, h) {
+
+}
+async function getDaily(request, h) {
+
+}
+async function getPrediction(request, h) {
+
 }
 
-async function getPredictHandler(request, h) {
-    const data = await getData("\(default\)");
 
-    const response = h.response({
-        status: "success",
-        data,
-    });
-    response.code(200)
-    return response;
-}
-
-module.exports = { postPredictHandler, getPredictHandler };
+module.exports = {
+    createUser, loginUser, createProfile, updateActivity,
+    getActivity,
+    updateDaily,
+    getDaily,
+    getPrediction
+};
