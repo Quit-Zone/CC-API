@@ -1,9 +1,9 @@
-Register:
+Register: (done)
 -gmail
 -password
 -username
 
-Login:
+Login: (done)
 -gmail
 -password
 
