@@ -8,6 +8,8 @@ const {
   getDaily, //get daily
   getPrediction //prediksi penyakit
 } = require('./handler');
+const authenticateToken = require('../middleware/authenticateToken');
+
   
   const routes = [
     {
@@ -24,6 +26,9 @@ const {
       path: "/profile",
       method: "POST",
       handler: createProfile,
+      options: {
+        pre: [authenticateToken]
+    }
     },
     {
       path: "/updateActivity",

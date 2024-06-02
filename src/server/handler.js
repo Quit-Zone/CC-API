@@ -2,6 +2,7 @@ const pool = require("../services/db");
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
+const jwt = require('jsonwebtoken');
 
 async function createUser(request, h) {
     const { email, password, username } = request.payload;
@@ -72,9 +73,14 @@ async function loginUser(request, h) {
             return h.response({ message: 'Invalid email or password' }).code(401);
         }
 
+        const token = jwt.sign({ id: user.id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' });
+
         const response = h.response({
             status: 'success',
             message: 'Login successful',
+            token: token,
             data: {
                 id: user.id,
                 email: user.email,
@@ -92,7 +98,49 @@ async function loginUser(request, h) {
 }
 
 async function createProfile(request, h) {
-    
+    const { age, gender, smokingHabit, physicalActivity, alcoholConsumption } = request.payload;
+
+    if (!age || !gender || smokingHabit === undefined || !physicalActivity || alcoholConsumption === undefined) {
+        return h.response({ message: 'All fields are required.' }).code(400);
+    }
+
+    try {
+        const profileId = crypto.randomUUID();
+        const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
+        const userId = request.user.id;
+
+        const sql = `
+            INSERT INTO profiles (profile_id, user_id, age, gender, smoking_habit, physical_activity, alcohol_consumption, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        const values = [profileId, userId, age, gender, smokingHabit, physicalActivity, alcoholConsumption, createdAt];
+
+        const [result] = await pool.execute(sql, values);
+
+        if (result.affectedRows === 1) {
+            const response = h.response({
+                status: 'success',
+                message: 'Profile created',
+                data: {
+                    profileId,
+                    userId,
+                    age,
+                    gender,
+                    smokingHabit,
+                    physicalActivity,
+                    alcoholConsumption,
+                    createdAt,
+                },
+            });
+            response.code(201);
+            return response;
+        } else {
+            return h.response({ message: 'Failed to create profile' }).code(500);
+        }
+    } catch (err) {
+        console.error(err);
+        return h.response({ message: 'Internal Server Error' }).code(500);
+    }
 }
 
 async function updateActivity(request, h) {
