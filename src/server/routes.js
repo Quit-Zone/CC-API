@@ -7,6 +7,7 @@ const {
   updateDaily, //edit daily
   getDaily, //get daily
   postWallet,
+  getWallet,
   getPrediction //prediksi penyakit
 } = require('./handler');
 const authenticateToken = require('../middleware/authenticateToken');
@@ -34,6 +35,14 @@ const routes = [
     path: "/wallet",
     method: "POST",
     handler: postWallet,
+    options: {
+      pre: [authenticateToken]
+    }
+  },
+  {
+    path: "/wallet",
+    method: "GET",
+    handler: getWallet,
     options: {
       pre: [authenticateToken]
     }

@@ -182,6 +182,30 @@ async function postWallet(request, h) {
         return h.response({ message: 'Internal Server Error' }).code(500);
     }
 }
+async function getWallet(request, h) {
+    try {
+        const userId = request.user.id; // Mendapatkan user_id dari token JWT
+
+        const sql = `
+            SELECT * FROM wallet WHERE user_id = ?
+        `;
+        const [rows] = await pool.execute(sql, [userId]);
+
+        if (rows.length === 0) {
+            return h.response({ message: 'No wallet found for this user' }).code(404);
+        }
+
+        const response = h.response({
+            status: 'success',
+            data: rows,
+        });
+        response.code(200);
+        return response;
+    } catch (err) {
+        console.error(err);
+        return h.response({ message: 'Internal Server Error' }).code(500);
+    }
+}
 
 async function updateActivity(request, h) {
 
@@ -209,5 +233,6 @@ module.exports = {
     updateDaily,
     getDaily,
     postWallet,
+    getWallet,
     getPrediction
 };
