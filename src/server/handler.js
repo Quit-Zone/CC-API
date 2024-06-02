@@ -143,6 +143,46 @@ async function createProfile(request, h) {
     }
 }
 
+async function postWallet(request, h) {
+    const { amount } = request.payload;
+
+    if (amount === undefined) {
+        return h.response({ message: 'Amount is required.' }).code(400);
+    }
+
+    try {
+        const walletId = crypto.randomUUID();
+        const userId = request.user.id; // Mendapatkan user_id dari token JWT
+
+        const sql = `
+            INSERT INTO wallet (wallet_id, user_id, amount) 
+            VALUES (?, ?, ?)
+        `;
+        const values = [walletId, userId, amount];
+
+        const [result] = await pool.execute(sql, values);
+
+        if (result.affectedRows === 1) {
+            const response = h.response({
+                status: 'success',
+                message: 'Wallet created successfully',
+                data: {
+                    walletId,
+                    userId,
+                    amount,
+                },
+            });
+            response.code(201);
+            return response;
+        } else {
+            return h.response({ message: 'Failed to create wallet' }).code(500);
+        }
+    } catch (err) {
+        console.error(err);
+        return h.response({ message: 'Internal Server Error' }).code(500);
+    }
+}
+
 async function updateActivity(request, h) {
 
 }
@@ -155,6 +195,7 @@ async function updateDaily(request, h) {
 async function getDaily(request, h) {
 
 }
+
 async function getPrediction(request, h) {
 
 }
@@ -167,5 +208,6 @@ module.exports = {
     getActivity,
     updateDaily,
     getDaily,
-    getPrediction,
+    postWallet,
+    getPrediction
 };
