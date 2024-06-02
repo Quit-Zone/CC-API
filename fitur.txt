@@ -1,9 +1,9 @@
-Register:
+Register: (done)
 -gmail
 -password
 -username
 
-Login:
+Login: (done)
 -gmail
 -password
 
@@ -41,6 +41,6 @@ wallet: (tambahan)
 
 Prediksi penyakit:
 -id penyakit
--Prediksi penyakit
-- predict value 
-- predict date
+-nama penyakit
+-suggestion
+-deskripsi
