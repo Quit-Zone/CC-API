@@ -77,6 +77,19 @@ async function loginUser(request, h) {
             process.env.JWT_SECRET,
             { expiresIn: '1h' });
 
+        // Create default activity if not exists
+        const activityCheckSql = `SELECT * FROM activity WHERE user_id = ?`;
+        const [activityRows] = await pool.execute(activityCheckSql, [user.id]);
+
+        if (activityRows.length === 0) {
+            const activityId = crypto.randomUUID();
+            const insertActivitySql = `
+                INSERT INTO activity (activity_id, user_id, task_1, task_2, task_3, task_4, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `;
+            await pool.execute(insertActivitySql, [activityId, user.id, false, false, false, false, false]);
+        }
+
         const response = h.response({
             status: 'success',
             message: 'Login successful',
@@ -207,17 +220,101 @@ async function getWallet(request, h) {
     }
 }
 
-async function updateActivity(request, h) {
+async function getAndupdateActivity(request, h) {
+    const userId = request.user.id;
+    const { task_1, task_2, task_3, task_4 } = request.payload;
 
-}
-async function getActivity(request, h) {
+    try {
+        // Update activity if payload contains any task
+        if (task_1 !== undefined || task_2 !== undefined || task_3 !== undefined || task_4 !== undefined) {
+            const updateSql = `
+                UPDATE activity
+                SET task_1 = COALESCE(?, task_1), 
+                    task_2 = COALESCE(?, task_2), 
+                    task_3 = COALESCE(?, task_3), 
+                    task_4 = COALESCE(?, task_4)
+                WHERE user_id = ?
+            `;
+            const values = [task_1, task_2, task_3, task_4, userId];
+            await pool.execute(updateSql, values);
+        }
 
-}
-async function updateDaily(request, h) {
+        // Fetch the updated activity
+        const fetchSql = `
+            SELECT activity_id, user_id, task_1, task_2, task_3, task_4
+            FROM activity
+            WHERE user_id = ?
+        `;
+        const [rows] = await pool.execute(fetchSql, [userId]);
 
+        if (rows.length === 0) {
+            return h.response({ message: 'No activity found for the user' }).code(404);
+        }
+
+        const activity = rows[0];
+
+        // Calculate the status based on tasks
+        const tasks = [activity.task_1, activity.task_2, activity.task_3, activity.task_4];
+        const completedTasksCount = tasks.filter(task => task).length;
+        const status = completedTasksCount >= 3;
+
+        // Update the status in the database
+        const updateStatusSql = `
+            UPDATE activity
+            SET status = ?
+            WHERE user_id = ?
+        `;
+        await pool.execute(updateStatusSql, [status, userId]);
+
+        // Fetch the updated activity with the new status
+        const fetchUpdatedSql = `
+            SELECT activity_id, user_id, task_1, task_2, task_3, task_4, status
+            FROM activity
+            WHERE user_id = ?
+        `;
+        const [updatedRows] = await pool.execute(fetchUpdatedSql, [userId]);
+
+        const response = h.response({
+            status: 'success',
+            data: updatedRows[0]
+        });
+        response.code(200);
+        return response;
+
+    } catch (err) {
+        console.error(err);
+        return h.response({ message: 'Internal Server Error' }).code(500);
+    }
 }
 async function getDaily(request, h) {
+    const userId = request.user.id;
+    try {
+        // Fetch activity status from the database
+        const fetchStatusSql = `
+            SELECT status
+            FROM activity
+            WHERE user_id = ?
+        `;
+        const [rows] = await pool.execute(fetchStatusSql, [userId]);
 
+        if (rows.length === 0) {
+            return h.response({ message: 'No activity found for the user' }).code(404);
+        }
+
+        const activity = rows[0];
+
+        // Extract the status from the fetched activity
+        const status = activity.status;
+
+        return h.response({
+            status: 'success',
+            data: { status }
+        }).code(200);
+
+    } catch (err) {
+        console.error(err);
+        return h.response({ message: 'Internal Server Error' }).code(500);
+    }
 }
 
 async function getPrediction(request, h) {
@@ -228,9 +325,7 @@ module.exports = {
     createUser,
     loginUser,
     createProfile,
-    updateActivity,
-    getActivity,
-    updateDaily,
+    getAndupdateActivity,
     getDaily,
     postWallet,
     getWallet,

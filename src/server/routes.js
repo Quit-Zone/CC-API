@@ -2,9 +2,7 @@ const {
   createUser, //register
   loginUser, //login
   createProfile, // kuesioner profile
-  updateActivity, //edit activity list
-  getActivity, // get activity
-  updateDaily, //edit daily
+  getAndupdateActivity, //edit activity list
   getDaily, //get daily
   postWallet,
   getWallet,
@@ -48,24 +46,20 @@ const routes = [
     }
   },
   {
-    path: "/updateActivity",
+    path: "/activity",
     method: "PUT",
-    handler: updateActivity,
+    handler: getAndupdateActivity,
+    options: {
+      pre: [authenticateToken]
+    }
   },
   {
-    path: "/getActivity",
-    method: "GET",
-    handler: getActivity,
-  },
-  {
-    path: "/updateDaily",
-    method: "PUT",
-    handler: updateDaily,
-  },
-  {
-    path: "/getDaily",
+    path: "/status",
     method: "GET",
     handler: getDaily,
+    options: {
+      pre: [authenticateToken]
+    }
   },
   {
     path: "/predict",
