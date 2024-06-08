@@ -12,8 +12,18 @@ async function createUser(request, h) {
     }
 
     try {
+        // Check if the email already exists
+        const emailCheckSql = 'SELECT COUNT(*) AS count FROM users WHERE email = ?';
+        const [emailCheckResult] = await pool.execute(emailCheckSql, [email]);
+        const emailCount = emailCheckResult[0].count;
+
+        if (emailCount > 0) {
+            return h.response({ message: 'Email already in use.' }).code(409);
+        }
+
+        // Proceed with creating the user
         const hashedPassword = await bcrypt.hash(password, 10);
-        const createdAt = moment().format('YYYY-MM-DD HH:mm:ss')
+        const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
         const id = crypto.randomUUID();
 
         const sql = `
@@ -46,6 +56,7 @@ async function createUser(request, h) {
         return h.response({ message: 'Internal Server Error' }).code(500);
     }
 }
+
 
 async function loginUser(request, h) {
     const { email, password } = request.payload;
