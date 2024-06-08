@@ -2,10 +2,11 @@ const {
   createUser, //register
   loginUser, //login
   createProfile, // kuesioner profile
-  getAndupdateActivity, //edit activity list
-  getDaily, //get daily
+  // getAndupdateActivity, //edit activity list
+  // getDaily, //get daily
   postWallet,
   getWallet,
+  postPrediction,
   getPrediction //prediksi penyakit
 } = require('./handler');
 const authenticateToken = require('../middleware/authenticateToken');
@@ -45,18 +46,26 @@ const routes = [
       pre: [authenticateToken]
     }
   },
+  // {
+  //   path: "/activity",
+  //   method: "PUT",
+  //   handler: getAndupdateActivity,
+  //   options: {
+  //     pre: [authenticateToken]
+  //   }
+  // },
+  // {
+  //   path: "/status",
+  //   method: "GET",
+  //   handler: getDaily,
+  //   options: {
+  //     pre: [authenticateToken]
+  //   }
+  // },
   {
-    path: "/activity",
-    method: "PUT",
-    handler: getAndupdateActivity,
-    options: {
-      pre: [authenticateToken]
-    }
-  },
-  {
-    path: "/status",
-    method: "GET",
-    handler: getDaily,
+    path: "/predict",
+    method: "POST",
+    handler: postPrediction,
     options: {
       pre: [authenticateToken]
     }
@@ -65,6 +74,9 @@ const routes = [
     path: "/predict",
     method: "GET",
     handler: getPrediction,
+    options: {
+      pre: [authenticateToken]
+    }
   }
 ];
 
