@@ -1,4 +1,4 @@
-## API DOCUMENTION
+## API DOCUMENTATION
 ### Register
 - **Method**: POST
 - **URL**: `/register`
