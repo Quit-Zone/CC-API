@@ -7,19 +7,19 @@ require('dotenv').config();
 
 const createUnixSocketPool = async config => {
     return mysql.createPool({
-      //host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      socketPath: process.env.INSTANCE_UNIX_SOCKET,
+        //host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        socketPath: process.env.INSTANCE_UNIX_SOCKET,
     });
-  };
-  
-  let pool;
-  (async () => {
-      pool = await createUnixSocketPool();
-  })();
-  
+};
+
+let pool;
+(async () => {
+    pool = await createUnixSocketPool();
+})();
+
 
 async function createUser(request, h) {
     const { email, password, username } = request.payload;
@@ -146,9 +146,27 @@ async function createProfile(request, h) {
     }
 
     const genderBoolean = gender === 'Male' ? 1 : gender === 'Female' ? 0 : null;
-    const smokingBoolean = smokingHabit === 'Daily' || 'Regularly' ? 1 : smokingHabit === 'Never' || 'Occasionally' ? 0 : null;
-    const activityBoolean = physicalActivity === '3-4 times a week' || '5 or more times a week' ? 1 : physicalActivity === 'Rarely'|| '1-2 times a week' ? 0 : null;
-    const alcoholBoolean = alcoholConsumption === 'Daily' || 'Regularly' ? 1 : alcoholConsumption === 'Never' || 'Occasionally' ? 0 : null;
+    const smokingInteger =
+        smokingHabit === 'Never' ? 1 :
+            smokingHabit === 'Occasionally' ? 2 :
+                smokingHabit === 'Frequently' ? 3 :
+                    smokingHabit === 'Daily' ? 4 :
+                        smokingHabit === 'More than once a day' ? 5 :
+                            null;
+    const activityInteger = physicalActivity === 'Sedentary (little or no exercise)' ? 1 :
+        physicalActivity === 'Lightly active (light exercise/sports 1-3 days/week)' ? 2 :
+            physicalActivity === 'Moderately active (moderate exercise/sports 3-5 days/week)' ? 3 :
+                physicalActivity === 'Very active (hard exercise/sports 6-7 days a week)' ? 4 :
+                    physicalActivity === 'Super active (very hard exercise/sports, physical job or training twice a day)' ? 5 :
+                        null;
+    const alcoholInteger =
+        alcoholConsumption === 'Never' ? 1 :
+            alcoholConsumption === 'Occasionally' ? 2 :
+                alcoholConsumption === 'Frequently' ? 3 :
+                    alcoholConsumption === 'Daily' ? 4 :
+                        alcoholConsumption === 'More than once a day' ? 5 :
+                            null;
+
 
     try {
         const profileId = crypto.randomUUID();
@@ -160,7 +178,7 @@ async function createProfile(request, h) {
             INSERT INTO profiles (profile_id, user_id, age, gender, smoking_habit, physical_activity, alcohol_consumption, created_at, hobby_1, hobby_2, hobby_3, location)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        const values = [profileId, userId, age, genderBoolean, smokingBoolean, activityBoolean, alcoholBoolean, createdAt, hobby_1, hobby_2, hobby_3, location];
+        const values = [profileId, userId, age, genderBoolean, smokingInteger, activityInteger, alcoholInteger  , createdAt, hobby_1, hobby_2, hobby_3, location];
 
         const [result] = await pool.execute(sql, values);
 
@@ -173,9 +191,9 @@ async function createProfile(request, h) {
                     userId,
                     age,
                     gender: genderBoolean,
-                    smokingHabit : smokingBoolean,
-                    physicalActivity : activityBoolean,
-                    alcoholConsumption : alcoholBoolean,
+                    smokingHabit: smokingInteger,
+                    physicalActivity: activityInteger,
+                    alcoholConsumption: alcoholInteger,
                     createdAt,
                     hobby_1,
                     hobby_2,
