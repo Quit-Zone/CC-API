@@ -145,10 +145,10 @@ async function createProfile(request, h) {
         return h.response({ message: 'All fields are required.' }).code(400);
     }
 
-    const genderBoolean = gender === 'male' ? 1 : gender === 'female' ? 0 : null;
-    const smokingBoolean = smokingHabit === 'sering' ? 1 : smokingHabit === 'jarang'|| 'tidak pernah' ? 0 : null;
-    const activityBoolean = physicalActivity === 'sering' ? 1 : physicalActivity === 'jarang'|| 'tidak pernah' ? 0 : null;
-    const alcoholBoolean = alcoholConsumption === 'sering' ? 1 : alcoholConsumption === 'jarang'|| 'tidak pernah' ? 0 : null;
+    const genderBoolean = gender === 'Male' ? 1 : gender === 'Female' ? 0 : null;
+    const smokingBoolean = smokingHabit === 'Daily' || 'Regularly' ? 1 : smokingHabit === 'Never' || 'Occasionally' ? 0 : null;
+    const activityBoolean = physicalActivity === '3-4 times a week' || '5 or more times a week' ? 1 : physicalActivity === 'Rarely'|| '1-2 times a week' ? 0 : null;
+    const alcoholBoolean = alcoholConsumption === 'Daily' || 'Regularly' ? 1 : alcoholConsumption === 'Never' || 'Occasionally' ? 0 : null;
 
     try {
         const profileId = crypto.randomUUID();
