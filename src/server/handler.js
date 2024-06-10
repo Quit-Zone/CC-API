@@ -139,9 +139,9 @@ async function loginUser(request, h) {
 }
 
 async function createProfile(request, h) {
-    const { age, gender, hobby_1, hobby_2, hobby_3, location, smokingHabit, physicalActivity, alcoholConsumption } = request.payload;
+    const { age, gender, hobby_1, hobby_2, hobby_3, height, weight, location, smokingHabit, physicalActivity, alcoholConsumption } = request.payload;
 
-    if (!age || !gender || !hobby_1 || !hobby_2 || !hobby_3 || !location || !smokingHabit || !physicalActivity || !alcoholConsumption) {
+    if (!age || !gender || !hobby_1 || !hobby_2 || !hobby_3 || !height || !weight || !location || !smokingHabit || !physicalActivity || !alcoholConsumption) {
         return h.response({ message: 'All fields are required.' }).code(400);
     }
 
@@ -166,7 +166,57 @@ async function createProfile(request, h) {
                     alcoholConsumption === 'Daily' ? 4 :
                         alcoholConsumption === 'More than once a day' ? 5 :
                             null;
-
+    const hobby_1_integer =
+        hobby_1 === 'Running/Jogging' ? 1 :
+            hobby_1 === 'Badminton' ? 2 :
+                hobby_1 === 'Swimming' ? 3 :
+                    hobby_1 === 'Cycling' ? 4 :
+                        hobby_1 === 'Fitness/Exercise' ? 5 :
+                            hobby_1 === 'Gardening' ? 6 :
+                                hobby_1 === 'Cooking/Baking' ? 7 :
+                                    hobby_1 === 'Writing' ? 8 :
+                                        hobby_1 === 'Playing Cards/Board Games' ? 9 :
+                                            hobby_1 === ' Reading Books' ? 10 :
+                                                hobby_1 === ' Fishing' ? 11 :
+                                                    hobby_1 === 'Yoga/Meditation' ? 12 :
+                                                        hobby_1 === 'Traveling' ? 13 :
+                                                            hobby_1 === 'Video Gaming' ? 14 :
+                                                                hobby_1 === 'Volunteering' ? 15 :
+                                                                    null;
+    const hobby_2_integer =
+        hobby_2 === 'Running/Jogging' ? 1 :
+            hobby_2 === 'Badminton' ? 2 :
+                hobby_2 === 'Swimming' ? 3 :
+                    hobby_2 === 'Cycling' ? 4 :
+                        hobby_2 === 'Fitness/Exercise' ? 5 :
+                            hobby_2 === 'Gardening' ? 6 :
+                                hobby_2 === 'Cooking/Baking' ? 7 :
+                                    hobby_2 === 'Writing' ? 8 :
+                                        hobby_2 === 'Playing Cards/Board Games' ? 9 :
+                                            hobby_2 === ' Reading Books' ? 10 :
+                                                hobby_2 === ' Fishing' ? 11 :
+                                                    hobby_2 === 'Yoga/Meditation' ? 12 :
+                                                        hobby_2 === 'Traveling' ? 13 :
+                                                            hobby_2 === 'Video Gaming' ? 14 :
+                                                                hobby_2 === 'Volunteering' ? 15 :
+                                                                    null;
+    const hobby_3_integer =
+        hobby_3 === 'Running/Jogging' ? 1 :
+            hobby_3 === 'Badminton' ? 2 :
+                hobby_3 === 'Swimming' ? 3 :
+                    hobby_3 === 'Cycling' ? 4 :
+                        hobby_3 === 'Fitness/Exercise' ? 5 :
+                            hobby_3 === 'Gardening' ? 6 :
+                                hobby_3 === 'Cooking/Baking' ? 7 :
+                                    hobby_3 === 'Writing' ? 8 :
+                                        hobby_3 === 'Playing Cards/Board Games' ? 9 :
+                                            hobby_3 === ' Reading Books' ? 10 :
+                                                hobby_3 === ' Fishing' ? 11 :
+                                                    hobby_3 === 'Yoga/Meditation' ? 12 :
+                                                        hobby_3 === 'Traveling' ? 13 :
+                                                            hobby_3 === 'Video Gaming' ? 14 :
+                                                                hobby_3 === 'Volunteering' ? 15 :
+                                                                    null;
 
     try {
         const profileId = crypto.randomUUID();
@@ -175,10 +225,10 @@ async function createProfile(request, h) {
 
 
         const sql = `
-            INSERT INTO profiles (profile_id, user_id, age, gender, smoking_habit, physical_activity, alcohol_consumption, created_at, hobby_1, hobby_2, hobby_3, location)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO profiles (profile_id, user_id, age, gender, smoking_habit, physical_activity, alcohol_consumption, created_at, hobby_1, hobby_2, hobby_3, location, Height, Weight)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        const values = [profileId, userId, age, genderBoolean, smokingInteger, activityInteger, alcoholInteger  , createdAt, hobby_1, hobby_2, hobby_3, location];
+        const values = [profileId, userId, age, genderBoolean, smokingInteger, activityInteger, alcoholInteger, createdAt, hobby_1_integer, hobby_2_integer, hobby_3_integer, location, height, weight];
 
         const [result] = await pool.execute(sql, values);
 
@@ -195,10 +245,12 @@ async function createProfile(request, h) {
                     physicalActivity: activityInteger,
                     alcoholConsumption: alcoholInteger,
                     createdAt,
-                    hobby_1,
-                    hobby_2,
-                    hobby_3,
+                    hobby_1 : hobby_1_integer,
+                    hobby_2 : hobby_2_integer,
+                    hobby_3 : hobby_3_integer,
                     location,
+                    height,
+                    weight,
                 },
             });
             response.code(201);
