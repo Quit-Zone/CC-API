@@ -71,36 +71,41 @@ Value = Bearer (token from login)
 
   {
     "age": 20,
-    "gender": "male",
-    "smokingHabit": "jarang",
-    "physicalActivity": "tidak pernah",
-    "alcoholConsumption": "sering",
-    "hobby_1": "lari",
-    "hobby_2": "joging",
-    "hobby_3": "hike",
-    "location": "bandung"
-  }
+    "gender": "Female",
+    "smokingHabit": "Never",
+    "physicalActivity": "Sedentary (little or no exercise)",
+    "alcoholConsumption": "Never",
+    "hobby_1": "Badminton",
+    "hobby_2": "Swimming",
+    "hobby_3": "Cycling",
+    "location": "Yogyakarta",
+    "height": 180,
+    "weight": 70
+}
   
 - **Response**:
    ```json
 
   {
     "status": "success",
-    "message": "Profile created"
+    "message": "Profile created",
     "data": {
-    "profileId",
-    "userId",
-    "age": 20,
-    "gender": "male",
-    "smokingHabit": "jarang",
-    "physicalActivity": "tidak pernah",
-    "alcoholConsumption": "sering",
-    "hobby_1": "lari",
-    "hobby_2": "joging",
-    "hobby_3": "hike",
-    "location": "bandung"
+        "profileId": "49f662a2-7afa-49bb-b652-f859c5422924",
+        "userId": "005e9806-3061-45b7-b710-4654e9f957f5",
+        "age": 20,
+        "gender": 0,
+        "smokingHabit": 1,
+        "physicalActivity": 1,
+        "alcoholConsumption": 1,
+        "createdAt": "2024-06-10 14:43:42",
+        "hobby_1": 2,
+        "hobby_2": 3,
+        "hobby_3": 4,
+        "location": "Yogyakarta",
+        "height": 180,
+        "weight": 70
     }
-  }
+}
 ##create wallet
 - **Method**: POST
 
