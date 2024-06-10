@@ -146,86 +146,63 @@ async function createProfile(request, h) {
     }
 
     const genderBoolean = gender === 'Male' ? 1 : gender === 'Female' ? 0 : null;
-    const smokingInteger =
-        smokingHabit === 'Never' ? 1 :
-            smokingHabit === 'Occasionally' ? 2 :
-                smokingHabit === 'Frequently' ? 3 :
-                    smokingHabit === 'Daily' ? 4 :
-                        smokingHabit === 'More than once a day' ? 5 :
-                            null;
-    const activityInteger = physicalActivity === 'Sedentary (little or no exercise)' ? 1 :
-        physicalActivity === 'Lightly active (light exercise/sports 1-3 days/week)' ? 2 :
-            physicalActivity === 'Moderately active (moderate exercise/sports 3-5 days/week)' ? 3 :
-                physicalActivity === 'Very active (hard exercise/sports 6-7 days a week)' ? 4 :
-                    physicalActivity === 'Super active (very hard exercise/sports, physical job or training twice a day)' ? 5 :
-                        null;
-    const alcoholInteger =
-        alcoholConsumption === 'Never' ? 1 :
-            alcoholConsumption === 'Occasionally' ? 2 :
-                alcoholConsumption === 'Frequently' ? 3 :
-                    alcoholConsumption === 'Daily' ? 4 :
-                        alcoholConsumption === 'More than once a day' ? 5 :
-                            null;
-    const hobby_1_integer =
-        hobby_1 === 'Running/Jogging' ? 1 :
-            hobby_1 === 'Badminton' ? 2 :
-                hobby_1 === 'Swimming' ? 3 :
-                    hobby_1 === 'Cycling' ? 4 :
-                        hobby_1 === 'Fitness/Exercise' ? 5 :
-                            hobby_1 === 'Gardening' ? 6 :
-                                hobby_1 === 'Cooking/Baking' ? 7 :
-                                    hobby_1 === 'Writing' ? 8 :
-                                        hobby_1 === 'Playing Cards/Board Games' ? 9 :
-                                            hobby_1 === ' Reading Books' ? 10 :
-                                                hobby_1 === ' Fishing' ? 11 :
-                                                    hobby_1 === 'Yoga/Meditation' ? 12 :
-                                                        hobby_1 === 'Traveling' ? 13 :
-                                                            hobby_1 === 'Video Gaming' ? 14 :
-                                                                hobby_1 === 'Volunteering' ? 15 :
-                                                                    null;
-    const hobby_2_integer =
-        hobby_2 === 'Running/Jogging' ? 1 :
-            hobby_2 === 'Badminton' ? 2 :
-                hobby_2 === 'Swimming' ? 3 :
-                    hobby_2 === 'Cycling' ? 4 :
-                        hobby_2 === 'Fitness/Exercise' ? 5 :
-                            hobby_2 === 'Gardening' ? 6 :
-                                hobby_2 === 'Cooking/Baking' ? 7 :
-                                    hobby_2 === 'Writing' ? 8 :
-                                        hobby_2 === 'Playing Cards/Board Games' ? 9 :
-                                            hobby_2 === ' Reading Books' ? 10 :
-                                                hobby_2 === ' Fishing' ? 11 :
-                                                    hobby_2 === 'Yoga/Meditation' ? 12 :
-                                                        hobby_2 === 'Traveling' ? 13 :
-                                                            hobby_2 === 'Video Gaming' ? 14 :
-                                                                hobby_2 === 'Volunteering' ? 15 :
-                                                                    null;
-    const hobby_3_integer =
-        hobby_3 === 'Running/Jogging' ? 1 :
-            hobby_3 === 'Badminton' ? 2 :
-                hobby_3 === 'Swimming' ? 3 :
-                    hobby_3 === 'Cycling' ? 4 :
-                        hobby_3 === 'Fitness/Exercise' ? 5 :
-                            hobby_3 === 'Gardening' ? 6 :
-                                hobby_3 === 'Cooking/Baking' ? 7 :
-                                    hobby_3 === 'Writing' ? 8 :
-                                        hobby_3 === 'Playing Cards/Board Games' ? 9 :
-                                            hobby_3 === ' Reading Books' ? 10 :
-                                                hobby_3 === ' Fishing' ? 11 :
-                                                    hobby_3 === 'Yoga/Meditation' ? 12 :
-                                                        hobby_3 === 'Traveling' ? 13 :
-                                                            hobby_3 === 'Video Gaming' ? 14 :
-                                                                hobby_3 === 'Volunteering' ? 15 :
-                                                                    null;
+    const smokingInteger = {
+        'Never': 1,
+        'Occasionally': 2,
+        'Frequently': 3,
+        'Daily': 4,
+        'More than once a day': 5
+    }[smokingHabit] || null;
+
+    const activityInteger = {
+        'Sedentary (little or no exercise)': 1,
+        'Lightly active (light exercise/sports 1-3 days/week)': 2,
+        'Moderately active (moderate exercise/sports 3-5 days/week)': 3,
+        'Very active (hard exercise/sports 6-7 days a week)': 4,
+        'Super active (very hard exercise/sports, physical job or training twice a day)': 5
+    }[physicalActivity] || null;
+
+    const alcoholInteger = {
+        'Never': 1,
+        'Occasionally': 2,
+        'Frequently': 3,
+        'Daily': 4,
+        'More than once a day': 5
+    }[alcoholConsumption] || null;
+
+    const hobbyInteger = {
+        'Running/Jogging': 1,
+        'Badminton': 2,
+        'Swimming': 3,
+        'Cycling': 4,
+        'Fitness/Exercise': 5,
+        'Gardening': 6,
+        'Cooking/Baking': 7,
+        'Writing': 8,
+        'Playing Cards/Board Games': 9,
+        'Reading Books': 10,
+        'Fishing': 11,
+        'Yoga/Meditation': 12,
+        'Traveling': 13,
+        'Video Gaming': 14,
+        'Volunteering': 15
+    };
+
+    const hobby_1_integer = hobbyInteger[hobby_1] || null;
+    const hobby_2_integer = hobbyInteger[hobby_2] || null;
+    const hobby_3_integer = hobbyInteger[hobby_3] || null;
+
+    if (genderBoolean === null || smokingInteger === null || activityInteger === null || alcoholInteger === null || hobby_1_integer === null || hobby_2_integer === null || hobby_3_integer === null) {
+        return h.response({ message: 'Invalid input values.' }).code(400);
+    }
 
     try {
         const profileId = crypto.randomUUID();
         const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
         const userId = request.user.id;
 
-
         const sql = `
-            INSERT INTO profiles (profile_id, user_id, age, gender, smoking_habit, physical_activity, alcohol_consumption, created_at, hobby_1, hobby_2, hobby_3, location, Height, Weight)
+            INSERT INTO profiles (profile_id, user_id, age, gender, smoking_habit, physical_activity, alcohol_consumption, created_at, hobby_1, hobby_2, hobby_3, location, height, weight)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const values = [profileId, userId, age, genderBoolean, smokingInteger, activityInteger, alcoholInteger, createdAt, hobby_1_integer, hobby_2_integer, hobby_3_integer, location, height, weight];
@@ -233,7 +210,7 @@ async function createProfile(request, h) {
         const [result] = await pool.execute(sql, values);
 
         if (result.affectedRows === 1) {
-            const response = h.response({
+            return h.response({
                 status: 'success',
                 message: 'Profile created',
                 data: {
@@ -245,24 +222,23 @@ async function createProfile(request, h) {
                     physicalActivity: activityInteger,
                     alcoholConsumption: alcoholInteger,
                     createdAt,
-                    hobby_1 : hobby_1_integer,
-                    hobby_2 : hobby_2_integer,
-                    hobby_3 : hobby_3_integer,
+                    hobby_1: hobby_1_integer,
+                    hobby_2: hobby_2_integer,
+                    hobby_3: hobby_3_integer,
                     location,
                     height,
                     weight,
                 },
-            });
-            response.code(201);
-            return response;
+            }).code(201);
         } else {
             return h.response({ message: 'Failed to create profile' }).code(500);
         }
     } catch (err) {
-        console.error(err);
+        console.error('Error creating profile:', err);
         return h.response({ message: 'Internal Server Error' }).code(500);
     }
 }
+
 
 async function postWallet(request, h) {
     const { amount } = request.payload;
