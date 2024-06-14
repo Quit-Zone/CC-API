@@ -3,11 +3,12 @@ const bcrypt = require('bcrypt');
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2/promise');
+const InferenceService = require('../services/inferenceService.js');
 require('dotenv').config();
 
 const createUnixSocketPool = async config => {
     return mysql.createPool({
-        //host: process.env.DB_HOST,
+        host: process.env.DB_HOST,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
@@ -401,11 +402,92 @@ async function getWallet(request, h) {
 //     }
 // }
 async function postPrediction(request, h) {
+    const userId = request.user.id;
+    const {  inferenceService  } = request.server.app;
 
+
+    try {
+        // Ambil data profil berdasarkan profileId
+        const sqlProfile = 'SELECT * FROM profiles WHERE user_id = ?';
+        const [profileRows] = await pool.execute(sqlProfile, [userId]);
+
+        if (profileRows.length === 0) {
+            return h.response({ message: 'Profile not found' }).code(404);
+        }
+
+        const profile = profileRows[0];
+
+        // Data untuk prediksi
+        const predictionData = {
+            age: profile.age,
+            gender: profile.gender,
+            smokingHabit: profile.smoking_habit,
+            physicalActivity: profile.physical_activity,
+            alcoholConsumption: profile.alcohol_consumption,
+            hobby_1: profile.hobby_1,
+            hobby_2: profile.hobby_2,
+            hobby_3: profile.hobby_3,
+            location: profile.location,
+            height: profile.height,
+            weight: profile.weight
+        };
+
+        // Panggil fungsi machine learning untuk mendapatkan hasil prediksi
+        const predictionResult = await inferenceService.predict(predictionData);
+
+        // Simpan hasil prediksi ke tabel predict
+        const predictId = crypto.randomUUID();
+        const sqlPredict = `
+            INSERT INTO predict (predict_id, user_id, prediksi_kategori)
+            VALUES (?, ?, ?)
+        `;
+        const valuesPredict = [predictId, userId, predictionResult];
+
+        const [resultPredict] = await pool.execute(sqlPredict, valuesPredict);
+
+        if (resultPredict.affectedRows === 1) {
+            return h.response({
+                status: 'success',
+                message: 'Prediction created',
+                data: {
+                    predictId,
+                    userId,
+                    kategori: predictionResult
+                },
+            }).code(201);
+        } else {
+            return h.response({ message: 'Failed to create prediction' }).code(500);
+        }
+    } catch (err) {
+        console.error('Error creating prediction:', err);
+        return h.response({ message: 'Internal Server Error' }).code(500);
+    }
 }
 
 async function getPrediction(request, h) {
+    const { predictId } = request.params;
 
+    try {
+        // Ambil kolom result_cluster berdasarkan predictId
+        const sql = 'SELECT prediksi_kategori FROM predict WHERE predict_id = ?';
+        const [rows] = await pool.execute(sql, [predictId]);
+
+        if (rows.length === 0) {
+            return h.response({ message: 'Prediction not found' }).code(404);
+        }
+
+        const resultCluster = rows[0].result_cluster;
+
+        return h.response({
+            status: 'success',
+            data: {
+                resultCluster: resultCluster,
+            },
+        }).code(200);
+    } catch (err) {
+        console.error('Error retrieving prediction:', err);
+        return h.response({ message: 'Internal Server Error' }).code(500);
+    }
 }
 
 module.exports = {
