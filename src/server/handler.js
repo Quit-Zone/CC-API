@@ -306,7 +306,7 @@ async function postPrediction(request, h) {
         const profile = profileRows[0];
 
         // Data for prediction
-        const predictionData = {
+        const prediction_data = {
             age: profile.age,
             alcoholConsumption: profile.alcohol_consumption,
             gender: profile.gender,
@@ -319,10 +319,10 @@ async function postPrediction(request, h) {
             weight: profile.weight
         };
 
-        console.log('Sending prediction data:', JSON.stringify(predictionData, null, 2)); // Log prediction data
+        console.log('Sending prediction data:', JSON.stringify(prediction_data, null, 2)); // Log prediction data
 
         // Send prediction data to FastAPI service
-        const mlResponse = await axios.post('https://quitzone-ml-agkhzirw6a-et.a.run.app/predict', predictionData);
+        const mlResponse = await axios.post('https://quitzone-ml-agkhzirw6a-et.a.run.app/predict', prediction_data);
 
         // Handle prediction response
         const predictionResult = mlResponse.data.prediction_result;
