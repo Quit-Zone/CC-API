@@ -295,7 +295,7 @@ async function postPrediction(request, h) {
     const userId = request.user.id;
 
     try {
-        // Ambil data profil berdasarkan profileId
+        // Fetch profile data
         const sqlProfile = 'SELECT * FROM profiles WHERE user_id = ?';
         const [profileRows] = await pool.execute(sqlProfile, [userId]);
 
@@ -305,7 +305,7 @@ async function postPrediction(request, h) {
 
         const profile = profileRows[0];
 
-        // Data untuk prediksi
+        // Data for prediction
         const predictionData = {
             age: profile.age,
             alcoholConsumption: profile.alcohol_consumption,
@@ -319,18 +319,17 @@ async function postPrediction(request, h) {
             weight: profile.weight
         };
 
-        // Mengirimkan data prediksi ke backend Python (FastAPI)
-        const mlResponse = await axios.post('https://quitzone-ml-agkhzirw6a-et.a.run.app/predict', predictionData, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            responseType: 'json', 
-        });
+        console.log('Sending prediction data:', JSON.stringify(predictionData, null, 2)); // Log prediction data
 
-        // Mengambil hasil prediksi dari respons backend Python
+        // Send prediction data to FastAPI service
+        const mlResponse = await axios.post('https://quitzone-ml-agkhzirw6a-et.a.run.app/predict', predictionData);
+
+        // Handle prediction response
         const predictionResult = mlResponse.data.prediction_result;
 
-        // Simpan hasil prediksi ke tabel predict
+        console.log('Received prediction result:', predictionResult); // Log prediction result
+
+        // Save prediction result to database
         const predictId = crypto.randomUUID();
         const sqlPredict = `
             INSERT INTO predict (predict_id, user_id, prediksi_kategori)
@@ -354,7 +353,7 @@ async function postPrediction(request, h) {
             return h.response({ message: 'Failed to create prediction' }).code(500);
         }
     } catch (err) {
-        console.error('Error creating prediction:', err);
+        console.error('Error creating prediction:', err); // Detailed error logging
         return h.response({ message: 'Internal Server Error' }).code(500);
     }
 }
