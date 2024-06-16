@@ -308,21 +308,22 @@ async function postPrediction(request, h) {
         // Data untuk prediksi
         const predictionData = {
             age: profile.age,
-            gender: profile.gender,
-            smokingHabit: profile.smoking_habit,
-            physicalActivity: profile.physical_activity,
             alcoholConsumption: profile.alcohol_consumption,
+            gender: profile.gender,
+            height: profile.height,
             hobby_1: profile.hobby_1,
             hobby_2: profile.hobby_2,
             hobby_3: profile.hobby_3,
-            height: profile.height,
+            physicalActivity: profile.physical_activity,
+            smokingHabit: profile.smoking_habit,
             weight: profile.weight
         };
 
         // Mengirimkan data prediksi ke backend Python (FastAPI)
         const mlResponse = await axios.post('https://quitzone-ml-agkhzirw6a-et.a.run.app/predict', predictionData, {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'responseType': 'json'
             }
         });
 
