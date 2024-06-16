@@ -321,10 +321,7 @@ async function postPrediction(request, h) {
 
         // Mengirimkan data prediksi ke backend Python (FastAPI)
         const mlResponse = await axios.post('https://quitzone-ml-agkhzirw6a-et.a.run.app/predict', predictionData, {
-            headers: {
-                'Content-Type': 'application/json',
-                'responseType': 'json'
-            }
+            
         });
 
         // Mengambil hasil prediksi dari respons backend Python
