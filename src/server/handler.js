@@ -356,23 +356,23 @@ async function postPrediction(request, h) {
 
 
 async function getPrediction(request, h) {
-    const { predictId } = request.params;
+    const userId = request.user.id;
 
     try {
         // Ambil kolom result_cluster berdasarkan predictId
-        const sql = 'SELECT prediksi_kategori FROM predict WHERE predict_id = ?';
-        const [rows] = await pool.execute(sql, [predictId]);
+        const sql = 'SELECT prediksi_kategori FROM predict WHERE user_id = ?';
+        const [rows] = await pool.execute(sql, [userId]);
 
         if (rows.length === 0) {
             return h.response({ message: 'Prediction not found' }).code(404);
         }
 
-        const resultCluster = rows[0].result_cluster;
+        const resultCluster = rows[0].prediksi_kategori;
 
         return h.response({
             status: 'success',
             data: {
-                resultCluster: resultCluster,
+                kategori: resultCluster,
             },
         }).code(200);
     } catch (err) {
