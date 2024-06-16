@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2/promise');
-const InferenceService = require('../services/inferenceService.js');
+const axios = require('axios');
 require('dotenv').config();
 
 const createUnixSocketPool = async config => {
@@ -106,19 +106,6 @@ async function loginUser(request, h) {
             process.env.JWT_SECRET,
             { expiresIn: '1h' });
 
-        // Create default activity if not exists
-        // const activityCheckSql = `SELECT * FROM activity WHERE user_id = ?`;
-        // const [activityRows] = await pool.execute(activityCheckSql, [user.id]);
-
-        // if (activityRows.length === 0) {
-        //     const activityId = crypto.randomUUID();
-        //     const insertActivitySql = `
-        //         INSERT INTO activity (activity_id, user_id, task_1, task_2, task_3, task_4, status)
-        //         VALUES (?, ?, ?, ?, ?, ?, ?)
-        //     `;
-        //     await pool.execute(insertActivitySql, [activityId, user.id, false, false, false, false, false]);
-        // }
-
         const response = h.response({
             status: 'success',
             message: 'Login successful',
@@ -140,9 +127,9 @@ async function loginUser(request, h) {
 }
 
 async function createProfile(request, h) {
-    const { age, gender, hobby_1, hobby_2, hobby_3, height, weight, location, smokingHabit, physicalActivity, alcoholConsumption } = request.payload;
+    const { age, gender, hobby_1, hobby_2, hobby_3, height, weight, smokingHabit, physicalActivity, alcoholConsumption } = request.payload;
 
-    if (!age || !gender || !hobby_1 || !hobby_2 || !hobby_3 || !height || !weight || !location || !smokingHabit || !physicalActivity || !alcoholConsumption) {
+    if (!age || !gender || !hobby_1 || !hobby_2 || !hobby_3 || !height || !weight || !smokingHabit || !physicalActivity || !alcoholConsumption) {
         return h.response({ message: 'All fields are required.' }).code(400);
     }
 
@@ -203,10 +190,10 @@ async function createProfile(request, h) {
         const userId = request.user.id;
 
         const sql = `
-            INSERT INTO profiles (profile_id, user_id, age, gender, smoking_habit, physical_activity, alcohol_consumption, created_at, hobby_1, hobby_2, hobby_3, location, height, weight)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO profiles (profile_id, user_id, age, gender, smoking_habit, physical_activity, alcohol_consumption, created_at, hobby_1, hobby_2, hobby_3, height, weight)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        const values = [profileId, userId, age, genderBoolean, smokingInteger, activityInteger, alcoholInteger, createdAt, hobby_1_integer, hobby_2_integer, hobby_3_integer, location, height, weight];
+        const values = [profileId, userId, age, genderBoolean, smokingInteger, activityInteger, alcoholInteger, createdAt, hobby_1_integer, hobby_2_integer, hobby_3_integer, height, weight];
 
         const [result] = await pool.execute(sql, values);
 
@@ -226,7 +213,6 @@ async function createProfile(request, h) {
                     hobby_1: hobby_1_integer,
                     hobby_2: hobby_2_integer,
                     hobby_3: hobby_3_integer,
-                    location,
                     height,
                     weight,
                 },
@@ -305,106 +291,8 @@ async function getWallet(request, h) {
     }
 }
 
-// async function getAndupdateActivity(request, h) {
-//     const userId = request.user.id;
-//     const { task_1, task_2, task_3, task_4 } = request.payload;
-
-//     try {
-//         // Update activity if payload contains any task
-//         if (task_1 !== undefined || task_2 !== undefined || task_3 !== undefined || task_4 !== undefined) {
-//             const updateSql = `
-//                 UPDATE activity
-//                 SET task_1 = COALESCE(?, task_1), 
-//                     task_2 = COALESCE(?, task_2), 
-//                     task_3 = COALESCE(?, task_3), 
-//                     task_4 = COALESCE(?, task_4)
-//                 WHERE user_id = ?
-//             `;
-//             const values = [task_1, task_2, task_3, task_4, userId];
-//             await pool.execute(updateSql, values);
-//         }
-
-//         // Fetch the updated activity
-//         const fetchSql = `
-//             SELECT activity_id, user_id, task_1, task_2, task_3, task_4
-//             FROM activity
-//             WHERE user_id = ?
-//         `;
-//         const [rows] = await pool.execute(fetchSql, [userId]);
-
-//         if (rows.length === 0) {
-//             return h.response({ message: 'No activity found for the user' }).code(404);
-//         }
-
-//         const activity = rows[0];
-
-//         // Calculate the status based on tasks
-//         const tasks = [activity.task_1, activity.task_2, activity.task_3, activity.task_4];
-//         const completedTasksCount = tasks.filter(task => task).length;
-//         const status = completedTasksCount >= 3;
-
-//         // Update the status in the database
-//         const updateStatusSql = `
-//             UPDATE activity
-//             SET status = ?
-//             WHERE user_id = ?
-//         `;
-//         await pool.execute(updateStatusSql, [status, userId]);
-
-//         // Fetch the updated activity with the new status
-//         const fetchUpdatedSql = `
-//             SELECT activity_id, user_id, task_1, task_2, task_3, task_4, status
-//             FROM activity
-//             WHERE user_id = ?
-//         `;
-//         const [updatedRows] = await pool.execute(fetchUpdatedSql, [userId]);
-
-//         const response = h.response({
-//             status: 'success',
-//             data: updatedRows[0]
-//         });
-//         response.code(200);
-//         return response;
-
-//     } catch (err) {
-//         console.error(err);
-//         return h.response({ message: 'Internal Server Error' }).code(500);
-//     }
-// }
-// async function getDaily(request, h) {
-//     const userId = request.user.id;
-//     try {
-//         // Fetch activity status from the database
-//         const fetchStatusSql = `
-//             SELECT status
-//             FROM activity
-//             WHERE user_id = ?
-//         `;
-//         const [rows] = await pool.execute(fetchStatusSql, [userId]);
-
-//         if (rows.length === 0) {
-//             return h.response({ message: 'No activity found for the user' }).code(404);
-//         }
-
-//         const activity = rows[0];
-
-//         // Extract the status from the fetched activity
-//         const status = activity.status;
-
-//         return h.response({
-//             status: 'success',
-//             data: { status }
-//         }).code(200);
-
-//     } catch (err) {
-//         console.error(err);
-//         return h.response({ message: 'Internal Server Error' }).code(500);
-//     }
-// }
 async function postPrediction(request, h) {
     const userId = request.user.id;
-    const {  inferenceService  } = request.server.app;
-
 
     try {
         // Ambil data profil berdasarkan profileId
@@ -427,13 +315,19 @@ async function postPrediction(request, h) {
             hobby_1: profile.hobby_1,
             hobby_2: profile.hobby_2,
             hobby_3: profile.hobby_3,
-            location: profile.location,
             height: profile.height,
             weight: profile.weight
         };
 
-        // Panggil fungsi machine learning untuk mendapatkan hasil prediksi
-        const predictionResult = await inferenceService.predict(predictionData);
+        // Mengirimkan data prediksi ke backend Python (FastAPI)
+        const mlResponse = await axios.post('https://quitzone-ml-agkhzirw6a-et.a.run.app/predict', predictionData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        // Mengambil hasil prediksi dari respons backend Python
+        const predictionResult = mlResponse.data.prediction_result;
 
         // Simpan hasil prediksi ke tabel predict
         const predictId = crypto.randomUUID();
@@ -463,6 +357,7 @@ async function postPrediction(request, h) {
         return h.response({ message: 'Internal Server Error' }).code(500);
     }
 }
+
 
 async function getPrediction(request, h) {
     const { predictId } = request.params;
@@ -494,8 +389,6 @@ module.exports = {
     createUser,
     loginUser,
     createProfile,
-    // getAndupdateActivity,
-    // getDaily,
     postWallet,
     getWallet,
     postPrediction,
