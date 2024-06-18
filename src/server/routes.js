@@ -14,57 +14,52 @@ const routes = [
     path: "/register",
     method: "POST",
     handler: createUser,
-    options: {
-      auth: false // Make login route accessible without authentication
-    }
+ 
   },
   {
     path: "/login",
     method: "POST",
     handler: loginUser,
-    options: {
-      auth: false // Make login route accessible without authentication
-    }
   },
   {
     path: "/profile",
     method: "POST",
     handler: createProfile,
-    // options: {
-    //   pre: [authenticateToken]
-    // }
+    options: {
+      pre: [authenticateToken]
+    }
   },
   {
     path: "/wallet",
     method: "POST",
     handler: postWallet,
-    // options: {
-    //   pre: [authenticateToken]
-    // }
+    options: {
+      pre: [authenticateToken]
+    }
   },
   {
     path: "/wallet",
     method: "GET",
     handler: getWallet,
-    // options: {
-    //   pre: [authenticateToken]
-    // }
+    options: {
+      pre: [authenticateToken]
+    }
   },
   {
     path: "/predict",
     method: "POST",
     handler: postPrediction,
-    // options: {
-    //   pre: [authenticateToken]
-    // }
+    options: {
+      pre: [authenticateToken]
+    }
   },
   {
     path: "/predict",
     method: "GET",
     handler: getPrediction,
-    // options: {
-    //   pre: [authenticateToken]
-    // }
+    options: {
+      pre: [authenticateToken]
+    }
   }
 ];
 

@@ -39,7 +39,7 @@ async function createUser(request, h) {
             return h.response({ message: 'Email already in use.' }).code(409);
         }
 
-        // Proceed with creating the user
+        
         const hashedPassword = await bcrypt.hash(password, 10);
         const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
         const id = crypto.randomUUID();
@@ -66,7 +66,7 @@ async function createUser(request, h) {
             response.code(201);
             return response;
         } else {
-            // Handle the case where the insertion was not successful
+
             return h.response({ message: 'Failed to save data' }).code(500);
         }
     } catch (err) {
@@ -102,15 +102,14 @@ async function loginUser(request, h) {
             return h.response({ message: 'Invalid email or password' }).code(401);
         }
 
-        // const token = jwt.sign({ id: user.id, email: user.email },
-        //     process.env.JWT_SECRET,
-        //     { expiresIn: '1h' });
-        request.cookieAuth.set({ userId: user.id });
+        const token = jwt.sign({ id: user.id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' });
 
         const response = h.response({
             status: 'success',
             message: 'Login successful',
-            //token: token,
+            token: token,
             data: {
                 id: user.id,
                 email: user.email,
@@ -188,7 +187,7 @@ async function createProfile(request, h) {
     try {
         const profileId = crypto.randomUUID();
         const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
-        const userId = request.auth.credentials.userId;
+        const userId = request.user.id;
 
         const sql = `
             INSERT INTO profiles (profile_id, user_id, age, gender, smoking_habit, physical_activity, alcohol_consumption, created_at, hobby_1, hobby_2, hobby_3, height, weight)
@@ -237,7 +236,7 @@ async function postWallet(request, h) {
 
     try {
         const walletId = crypto.randomUUID();
-        const userId = request.auth.credentials.userId;
+        const userId = request.user.id;
 
         const sql = `
             INSERT INTO wallet (wallet_id, user_id, amount) 
@@ -269,7 +268,7 @@ async function postWallet(request, h) {
 }
 async function getWallet(request, h) {
     try {
-        const userId = request.auth.credentials.userId;
+        const userId = request.user.id;
 
         const sql = `
             SELECT * FROM wallet WHERE user_id = ?
@@ -293,7 +292,7 @@ async function getWallet(request, h) {
 }
 
 async function postPrediction(request, h) {
-    const userId = request.auth.credentials.userId;
+    const userId = request.user.id;
 
     try {
         // Fetch profile data
@@ -326,7 +325,6 @@ async function postPrediction(request, h) {
         // Handle prediction response
         const predictionResult = mlResponse.data.prediction_result;
 
-        // Save prediction result to database
         const predictId = crypto.randomUUID();
         const sqlPredict = `
             INSERT INTO predict (predict_id, user_id, prediksi_kategori)
@@ -350,17 +348,17 @@ async function postPrediction(request, h) {
             return h.response({ message: 'Failed to create prediction' }).code(500);
         }
     } catch (err) {
-        console.error('Error creating prediction:', err); // Detailed error logging
+        console.error('Error creating prediction:', err);
         return h.response({ message: 'Internal Server Error' }).code(500);
     }
 }
 
 
 async function getPrediction(request, h) {
-    const userId = request.auth.credentials.userId;
+    const userId = request.user.id;
 
     try {
-        // Ambil kolom result_cluster berdasarkan predictId
+        
         const sql = 'SELECT prediksi_kategori FROM predict WHERE user_id = ?';
         const [rows] = await pool.execute(sql, [userId]);
 
