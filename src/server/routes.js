@@ -14,6 +14,9 @@ const routes = [
     path: "/register",
     method: "POST",
     handler: createUser,
+    options: {
+      auth: false // Make login route accessible without authentication
+    }
   },
   {
     path: "/login",
