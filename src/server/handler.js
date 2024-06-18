@@ -102,14 +102,15 @@ async function loginUser(request, h) {
             return h.response({ message: 'Invalid email or password' }).code(401);
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' });
+        // const token = jwt.sign({ id: user.id, email: user.email },
+        //     process.env.JWT_SECRET,
+        //     { expiresIn: '1h' });
+        request.cookieAuth.set({ userId: user.id });
 
         const response = h.response({
             status: 'success',
             message: 'Login successful',
-            token: token,
+            //token: token,
             data: {
                 id: user.id,
                 email: user.email,
@@ -187,7 +188,7 @@ async function createProfile(request, h) {
     try {
         const profileId = crypto.randomUUID();
         const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
-        const userId = request.user.id;
+        const userId = request.auth.credentials.userId;
 
         const sql = `
             INSERT INTO profiles (profile_id, user_id, age, gender, smoking_habit, physical_activity, alcohol_consumption, created_at, hobby_1, hobby_2, hobby_3, height, weight)
@@ -236,7 +237,7 @@ async function postWallet(request, h) {
 
     try {
         const walletId = crypto.randomUUID();
-        const userId = request.user.id; // Mendapatkan user_id dari token JWT
+        const userId = request.auth.credentials.userId;
 
         const sql = `
             INSERT INTO wallet (wallet_id, user_id, amount) 
@@ -268,7 +269,7 @@ async function postWallet(request, h) {
 }
 async function getWallet(request, h) {
     try {
-        const userId = request.user.id; // Mendapatkan user_id dari token JWT
+        const userId = request.auth.credentials.userId;
 
         const sql = `
             SELECT * FROM wallet WHERE user_id = ?
@@ -292,7 +293,7 @@ async function getWallet(request, h) {
 }
 
 async function postPrediction(request, h) {
-    const userId = request.user.id;
+    const userId = request.auth.credentials.userId;
 
     try {
         // Fetch profile data
@@ -356,7 +357,7 @@ async function postPrediction(request, h) {
 
 
 async function getPrediction(request, h) {
-    const userId = request.user.id;
+    const userId = request.auth.credentials.userId;
 
     try {
         // Ambil kolom result_cluster berdasarkan predictId
