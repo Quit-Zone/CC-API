@@ -181,7 +181,7 @@ Value = Bearer (token from login)
 ##getPredict
 - **Method**:GET
 
-- **URL**:`/predcit`
+- **URL**:`/predict`
 
 Headers
 
