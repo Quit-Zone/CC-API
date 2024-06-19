@@ -1,9 +1,6 @@
 # QuitZone-CC
 Part of QuitZone C241-PS024 - CC Setup
 
-ML - NOTEBOOK
-https://colab.research.google.com/drive/13mBjmnS8tLtOKSB2aD1YAKQCj-k0UWbL#scrollTo=e59ncAO8L6QE
-
 ## API DOCUMENTATION
 ### Register
 - **Method**: POST
@@ -157,3 +154,47 @@ Value = Bearer (token from login)
      },
    }
 
+##postPrediksi
+- **Method**: POST
+
+- **URL**:`/predict`
+
+Headers
+
+Key = Authorization
+
+Value = Bearer (token from login)
+
+- **Response**:
+   ```json
+
+  {
+    "status": "success",
+    "message": "Prediction created",
+    "data": {
+        "predictId",
+        "userId",
+        "kategori:",
+    }
+  }
+
+##getPredict
+- **Method**:GET
+
+- **URL**:`/predcit`
+
+Headers
+
+Key = Authorization
+
+Value = Bearer (token from login)
+
+- **Response**:
+   ```json
+
+  {
+    "status": "success",
+    "data": {
+       "kategori",
+     },
+   }
